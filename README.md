@@ -144,3 +144,83 @@ namespace RestClient
     }
 }
 ```
+## Eigene Datentypen serialisieren
+```
+Solution Explorer / Solution 'RestServer' / RestServer / Models (right-click) / Add / New Item...
+Installed / Visual C# / Code / Class
+Name: Kunde
+Add
+```
+Kunde.cs
+```
+using System;
+
+namespace RestServer.Models
+{
+    public class Kunde
+    {
+        public string Nachname { get; private set; }
+
+        public string Vorname { get; private set; }
+
+        public DateTime Geburt { get; private set; }
+
+        public Kunde(string Nachname, string Vorname, DateTime Geburt)
+        {
+            this.Nachname = Nachname;
+            this.Vorname = Vorname;
+            this.Geburt = Geburt.Date;
+        }
+    }
+}
+```
+JSON.NET kommt technisch auch mit öffentlichen Settern klar, aber in fachlichen Klassen will man das nicht. (Alternativ baut man eine saubere fachliche Klasse ohne Properties und mappt von Hand auf eine DTO-Klasse mit komplett öffentlichen Properties.)
+
+DefaultController.cs
+```
+        // GET: api/Default
+        public IEnumerable<Kunde> Get()
+        {
+            Kunde bill = new Kunde(Nachname: "Gates", Vorname: "Bill", Geburt: DateTime.Parse("1955-10-28"));
+            Kunde linus = new Kunde(Nachname: "Torvalds", Vorname: "Linus", Geburt: DateTime.Parse("1969-12-28"));
+            return new Kunde[] { bill, linus };
+        }
+```
+## Eigene Datentypen deserialisieren
+```
+Solution Explorer / Solution 'RestClient' / RestClient (right-click) / Add / New Item...
+Installed / Visual C# / Code / Class
+Name: Kunde
+Add
+```
+Kunde.cs
+```
+using System;
+
+namespace RestClient
+{
+    public class Kunde
+    {
+        public string Nachname { get; private set; }
+
+        public string Vorname { get; private set; }
+
+        public Kunde(string Nachname, string Vorname)
+        {
+            this.Nachname = Nachname;
+            this.Vorname = Vorname;
+        }
+    }
+}
+```
+Das Geburtsdatum wurde absichtlich ausgelassen. JSON.NET kommt damit problemlos klar. Man kann sich also auf die Properties beschränken, die einen gerade interessieren. (Alternativ kann man natürlich auch vollständige DTOs verwenden und manuell mappen.)
+
+Program.cs:
+```
+            IEnumerable<Kunde> deserialized = response.Content.ReadAsAsync<IEnumerable<Kunde>>().Result;
+
+            foreach (Kunde kunde in deserialized)
+            {
+                Console.WriteLine($"{kunde.Nachname}, {kunde.Vorname}");
+            }
+```
