@@ -13,17 +13,14 @@ File / New / Project... (Ctrl+Shift+N)
 Installed / Templates / Visual C# / Web
 ASP.NET Web Application
 Name: RestServer
-[ ] Create directory for solution
 OK
 
 Select a template:
 ASP.NET 4.5.2 Templates / Empty
-Add folders and core references for:
-[x] Web API
+Add folders and core references for: [x] Web API
+[x] Add unit tests
+Microsoft Azure [ ] Host in the cloud
 OK
-
-Configure Microsoft Azure Web App
-Cancel
 ```
 ## Der erste Controller
 ```
@@ -55,7 +52,6 @@ File / New / Project... (Ctrl+Shift+N)
 Installed / Templates / Visual C# / Windows
 Console Application
 Name: RestClient
-[ ] Create directory for solution
 OK
 
 Tools / NuGet Package Manager / Package Manager Console
