@@ -1,5 +1,7 @@
 ## Typische Stolpersteine beseitigen
 ```
+View / Output
+
 Tools / Options... (ganz unten)
 
 Projects and Solutions / Build and Run
@@ -223,4 +225,35 @@ Program.cs:
             {
                 Console.WriteLine($"{kunde.Nachname}, {kunde.Vorname}");
             }
+```
+### Testen mit dem Microsoft Unit Testing Framework
+
+UnitTest1.cs
+```
+using System;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using RestServer.Models;
+
+namespace RestServer.Tests
+{
+    [TestClass]
+    public class UnitTest1
+    {
+        [TestMethod]
+        public void TestInitialization()
+        {
+            Kunde linus = new Kunde(Nachname: "Torvalds", Vorname: "Linus", Geburt: DateTime.Parse("1969-12-28"));
+            Assert.AreEqual("Torvalds", linus.Nachname);
+            Assert.AreEqual("Linus", linus.Vorname);
+            Assert.AreEqual(DateTime.Parse("1969-12-28"), linus.Geburt);
+        }
+    }
+}
+```
+Tests bauen und ausführen
+```
+Build / Build Solution (F6)
+Test / Windows / Test Explorer
+Don't show this again
+Run All
 ```
