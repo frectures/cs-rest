@@ -60,7 +60,7 @@ Tools / NuGet Package Manager / Package Manager Console
 PM> install-package Microsoft.AspNet.WebApi.Client
 ```
 Ohne Fehlerbehandlung:
-```
+```csharp
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -92,7 +92,7 @@ namespace RestClient
 }
 ```
 Mit Fehlerbehandlung:
-```
+```csharp
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -154,7 +154,7 @@ Name: Kunde
 Add
 ```
 Kunde.cs
-```
+```csharp
 using System;
 
 namespace RestServer.Models
@@ -179,7 +179,7 @@ namespace RestServer.Models
 JSON.NET kommt technisch auch mit öffentlichen Settern klar, aber in fachlichen Klassen will man das nicht. (Alternativ baut man eine saubere fachliche Klasse ohne Properties und mappt von Hand auf eine DTO-Klasse mit komplett öffentlichen Properties.)
 
 DefaultController.cs
-```
+```csharp
         // GET: api/Default
         public IEnumerable<Kunde> Get()
         {
@@ -196,7 +196,7 @@ Name: Kunde
 Add
 ```
 Kunde.cs
-```
+```csharp
 using System;
 
 namespace RestClient
@@ -218,7 +218,7 @@ namespace RestClient
 Das Geburtsdatum wurde absichtlich ausgelassen. JSON.NET kommt damit problemlos klar. Man kann sich also auf die Properties beschränken, die einen gerade interessieren. (Alternativ kann man natürlich auch vollständige DTOs verwenden und manuell mappen.)
 
 Program.cs:
-```
+```csharp
             IEnumerable<Kunde> deserialized = response.Content.ReadAsAsync<IEnumerable<Kunde>>().Result;
 
             foreach (Kunde kunde in deserialized)
@@ -229,7 +229,7 @@ Program.cs:
 ## Testen mit dem Microsoft Unit Testing Framework
 
 UnitTest1.cs
-```
+```csharp
 using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RestServer.Models;
@@ -268,7 +268,7 @@ In den Projekt-Eigenschaften nachschauen, ob es einen Menüpunkt `Code Contracts`
 Anschließend sollte man `[x] Perform Runtime Contract Checking` auf `Full` oder zumindest `Preconditions` stellen. (Nachbedingungen werden in der Praxis aus verschiedenen Gründen selten geprüft. Sie dienen aber als praktische Inspirationsquelle für Testfälle.)
 
 Mathematisches Beispiel für Vorbedingungen und Nachbedingungen:
-```
+```csharp
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
