@@ -320,3 +320,74 @@ namespace DesignByContractExample
 }
 ```
 Die letzte Nachbedingung schlägt dabei fehl, weil `42 = 2 * 3 * 7` ist, die 7 fehlt aber im Ergebnis.
+
+## Messaging
+
+Im Windows-Startmenü `Features` eingeben und `Windows-Features aktivieren oder deaktivieren` auswählen. Falls das Kästchen vor `Microsoft-Message Queue-Server` (sic) leer ist, dieses einmal anklicken. Daraufhin füllt sich dieses mit einem schwarzen Quadrat (es wird nur der direkte Unterpunkt `Microsoft-Message Queue-Serverkernkomponenten` aktiviert und benötigt).
+```
+Solution Explorer / Solution 'MySolution' / MyApplication / References (right-click) / Add Reference...
+[x] System.Messaging
+OK
+```
+Einfaches Beispiel zum Verschicken von Strings:
+```csharp
+using System;
+using System.Messaging;
+
+namespace MessagingExample
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            SendMessages();
+            ReceiveMessages();
+        }
+
+        const string PATH = @".\Private$\Schlange";
+
+        static void SendMessages()
+        {
+            if (!MessageQueue.Exists(PATH))
+            {
+                MessageQueue.Create(PATH);
+            }
+            using (var messageQueue = new MessageQueue(PATH))
+            {
+                messageQueue.Send("one");
+                messageQueue.Send("two");
+                messageQueue.Send("three");
+            }
+        }
+
+        static readonly XmlMessageFormatter xmlMessageFormatter = new XmlMessageFormatter(new String[] { "System.String, mscorlib" });
+
+        static void ReceiveMessages()
+        {
+            using (MessageQueue messageQueue = new MessageQueue(PATH))
+            {
+                messageQueue.Formatter = xmlMessageFormatter;
+                try
+                {
+                    while (true)
+                    {
+                        Message message = messageQueue.Receive(TimeSpan.FromSeconds(2));
+                        string text = message.Body as string;
+                        Console.WriteLine(text);
+                    }
+                }
+                catch (MessageQueueException ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+        }
+    }
+}
+```
+Das Senden und Empfangen funktioniert auch über Prozessgrenzen hinweg, durch das `Private$` in diesem einfachen Beispiel allerdings nur auf ein- und demselben Rechner.
+
+Statt Strings kann man auch beliebige Transfer-Objekte mit öffentlichen Properties versenden und empfangen. Dazu muss man an beiden Stellen einen passenden Formatter einstellen:
+```csharp
+messageQueue.Formatter = new XmlMessageFormatter(new Type[] { typeof(KundeDTO) });
+```
