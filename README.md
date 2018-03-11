@@ -226,7 +226,7 @@ Program.cs:
                 Console.WriteLine($"{kunde.Nachname}, {kunde.Vorname}");
             }
 ```
-### Testen mit dem Microsoft Unit Testing Framework
+## Testen mit dem Microsoft Unit Testing Framework
 
 UnitTest1.cs
 ```
@@ -257,3 +257,66 @@ Test / Windows / Test Explorer
 Don't show this again
 Run All
 ```
+## Vetragsmodell mit Code Contracts for .NET
+
+In den Projekt-Eigenschaften nachschauen, ob es einen Menüpunkt `Code Contracts` (nicht verwechseln mit `Code Analysis`!) gibt. Falls es keinen solchen Menüpunkt gibt:
+
+1. Visual Studio beenden
+2. https://marketplace.visualstudio.com/items?itemName=RiSEResearchinSoftwareEngineering.CodeContractsforNET herunterladen und installieren (Alternative Setups findet man auf https://stackoverflow.com/a/46412917)
+3. Visual Studio starten
+
+Anschließend sollte man `[x] Perform Runtime Contract Checking` auf `Full` oder zumindest `Preconditions` stellen. (Nachbedingungen werden in der Praxis aus verschiedenen Gründen selten geprüft. Sie dienen aber als praktische Inspirationsquelle für Testfälle.)
+
+Mathematisches Beispiel für Vorbedingungen und Nachbedingungen:
+```
+using System;
+using System.Collections.Generic;
+using System.Diagnostics.Contracts;
+using System.Linq;
+
+namespace DesignByContractExample
+{
+    class Program
+    {
+        public static List<int> factorization(int x)
+        {
+            Contract.Requires(x >= 1);
+
+            Contract.Ensures(Contract.Result<List<int>>().Count >= 1);
+            Contract.Ensures(Contract.Result<List<int>>().IsSorted());
+            Contract.Ensures(Contract.Result<List<int>>().Product() == x);
+
+            var factors = new List<int>();
+            var root = Math.Sqrt(x);
+            for (int i = 2; i <= root; ++i)
+            {
+                while (x % i == 0)
+                {
+                    factors.Add(i);
+                    x /= i;
+                }
+            }
+            return factors;
+        }
+
+        static void Main(string[] args)
+        {
+            Console.WriteLine(string.Join(" * ", factorization(42)));
+        }
+    }
+
+    static class Extensions
+    {
+        public static int Product(this List<int> factors)
+        {
+            return factors.Aggregate((a, b) => a * b);
+        }
+
+        public static bool IsSorted(this List<int> list)
+        {
+            return list.Zip(list.Skip(1), (a, b) => Tuple.Create(a, b)).All(t => t.Item1 <= t.Item2);
+        }
+    }
+}
+```
+Die letzte Nachbedingung schlägt dabei fehl, weil `42 = 2 * 3 * 7` ist, die 7 fehlt aber im Ergebnis.
