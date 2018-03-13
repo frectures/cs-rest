@@ -461,3 +461,53 @@ Damit man das nicht für jede Entität neu programmieren muss, kann man eine abstr
         }
     }
 ```
+## Einfaches Repository ohne echte Datenbank
+```csharp
+    public class Repository<A> where A : Entity<A>
+    {
+        private Dictionary<Guid, A> map = new Dictionary<Guid, A>();
+
+        public int Count()
+        {
+            return map.Count;
+        }
+
+        public void Save(A aggregate)
+        {
+            map[aggregate.ID] = aggregate;
+        }
+
+        public void SaveAll(IEnumerable<A> aggregates)
+        {
+            foreach (A aggregate in aggregates)
+            {
+                map[aggregate.ID] = aggregate;
+            }
+        }
+
+        public A FindById(Guid id)
+        {
+            return map[id];
+        }
+
+        public IEnumerable<A> FindAll()
+        {
+            return map.Values;
+        }
+
+        public void Delete(A a)
+        {
+            map.Remove(a.ID);
+        }
+
+        public void DeleteById(Guid id)
+        {
+            map.Remove(id);
+        }
+
+        public void DeleteAll()
+        {
+            map.Clear();
+        }
+    }
+```
