@@ -401,5 +401,33 @@ Das Senden und Empfangen funktioniert auch über Prozessgrenzen hinweg, durch das
 
 Statt Strings kann man auch beliebige Transfer-Objekte mit öffentlichen Properties versenden und empfangen. Dazu muss man an beiden Stellen einen passenden Formatter einstellen:
 ```csharp
-messageQueue.Formatter = new XmlMessageFormatter(new Type[] { typeof(KundeDTO) });
+messageQueue.Formatter = new XmlMessageFormatter(new Type[] { typeof(SomethingHappened) });
+```
+## Gleichheit basierend auf generierter ID
+```csharp
+    public class Konto
+    {
+        public readonly Guid ID = Guid.NewGuid();
+
+        public override bool Equals(object obj)
+        {
+            Konto that = obj as Konto;
+            return that != null && this.ID == that.ID;
+        }
+
+        public override int GetHashCode()
+        {
+            return ID.GetHashCode();
+        }
+
+        public static bool operator ==(Konto a, Konto b)
+        {
+            return a.ID == b.ID;
+        }
+
+        public static bool operator !=(Konto a, Konto b)
+        {
+            return a.ID != b.ID;
+        }
+    }
 ```
