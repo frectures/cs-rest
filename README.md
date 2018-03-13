@@ -431,3 +431,33 @@ messageQueue.Formatter = new XmlMessageFormatter(new Type[] { typeof(SomethingHa
         }
     }
 ```
+Damit man das nicht für jede Entität neu programmieren muss, kann man eine abstrakte Basisklasse für Entities definieren und diese mit der konkreten Entity parametrisieren (F-bounded polymorphism bzw. curiously recurring template pattern):
+```csharp
+    public class Konto : Entity<Konto>
+
+    public abstract class Entity<E> where E : Entity<E>
+    {
+        public readonly Guid ID = Guid.NewGuid();
+
+        public override bool Equals(object obj)
+        {
+            Entity<E> that = obj as Entity<E>;
+            return that != null && this.ID == that.ID;
+        }
+
+        public override int GetHashCode()
+        {
+            return ID.GetHashCode();
+        }
+
+        public static bool operator ==(Entity<E> a, Entity<E> b)
+        {
+            return a.ID == b.ID;
+        }
+
+        public static bool operator !=(Entity<E> a, Entity<E> b)
+        {
+            return a.ID != b.ID;
+        }
+    }
+```
