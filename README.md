@@ -228,6 +228,18 @@ Program.cs:
 ```
 ## Testen mit dem Microsoft Unit Testing Framework
 
+In dem generierten REST-Server ist aufgrund der Option `[x] Add unit tests` bereits ein Test-Projekt enthalten.
+Ansonsten muss man das Test-Projekt von Hand anlegen und verdrahten:
+```
+Solution Explorer / Solution 'RestServer' (right-click) / Add / New Project...
+Installed / Visual C# / Test / Unit Test Project
+Name: RestServer.Tests
+OK
+
+Solution Explorer / Solution 'RestServer' / RestServer.Tests / References (right-click) / Add Reference...
+Projects / Solution / [x] RestServer
+OK
+```
 UnitTest1.cs
 ```csharp
 using System;
