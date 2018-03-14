@@ -403,61 +403,76 @@ Statt Strings kann man auch beliebige Transfer-Objekte mit öffentlichen Properti
 ```csharp
 messageQueue.Formatter = new XmlMessageFormatter(new Type[] { typeof(SomethingHappened) });
 ```
-## Gleichheit basierend auf generierter ID
+## Gleichheit basierend auf fachlicher ID
 ```csharp
     public class Konto
     {
-        public readonly Guid ID = Guid.NewGuid();
+        public readonly long id;
 
         public override bool Equals(object obj)
         {
             Konto that = obj as Konto;
-            return that != null && this.ID == that.ID;
+            return that != null && this.id == that.id;
         }
 
         public override int GetHashCode()
         {
-            return ID.GetHashCode();
+            return id.GetHashCode();
         }
 
         public static bool operator ==(Konto a, Konto b)
         {
-            return a.ID == b.ID;
+            return a.id == b.id;
         }
 
         public static bool operator !=(Konto a, Konto b)
         {
-            return a.ID != b.ID;
+            return a.id != b.id;
         }
     }
 ```
 Damit man das nicht für jede Entität neu programmieren muss, kann man eine abstrakte Basisklasse für Entities definieren und diese mit der konkreten Entity parametrisieren (F-bounded polymorphism bzw. curiously recurring template pattern):
 ```csharp
     public class Konto : Entity<Konto>
+    {
+        public int Saldo { get; private set; }
+
+        public Konto(long id, int startsaldo) : base(id)
+        {
+            Saldo = startsaldo;
+        }
+
+        // ...
+    }
 
     public abstract class Entity<E> where E : Entity<E>
     {
-        public readonly Guid ID = Guid.NewGuid();
+        public readonly long id;
+
+        protected Entity(long id)
+        {
+            this.id = id;
+        }
 
         public override bool Equals(object obj)
         {
             Entity<E> that = obj as Entity<E>;
-            return that != null && this.ID == that.ID;
+            return that != null && this.id == that.id;
         }
 
         public override int GetHashCode()
         {
-            return ID.GetHashCode();
+            return id.GetHashCode();
         }
 
         public static bool operator ==(Entity<E> a, Entity<E> b)
         {
-            return a.ID == b.ID;
+            return a.id == b.id;
         }
 
         public static bool operator !=(Entity<E> a, Entity<E> b)
         {
-            return a.ID != b.ID;
+            return a.id != b.id;
         }
     }
 ```
@@ -465,7 +480,7 @@ Damit man das nicht für jede Entität neu programmieren muss, kann man eine abstr
 ```csharp
     public class Repository<A> where A : Entity<A>
     {
-        private Dictionary<Guid, A> map = new Dictionary<Guid, A>();
+        private Dictionary<long, A> map = new Dictionary<long, A>();
 
         public int Count()
         {
@@ -474,18 +489,18 @@ Damit man das nicht für jede Entität neu programmieren muss, kann man eine abstr
 
         public void Save(A aggregate)
         {
-            map[aggregate.ID] = aggregate;
+            map[aggregate.id] = aggregate;
         }
 
         public void SaveAll(IEnumerable<A> aggregates)
         {
             foreach (A aggregate in aggregates)
             {
-                map[aggregate.ID] = aggregate;
+                map[aggregate.id] = aggregate;
             }
         }
 
-        public A FindById(Guid id)
+        public A FindById(long id)
         {
             return map[id];
         }
@@ -497,10 +512,10 @@ Damit man das nicht für jede Entität neu programmieren muss, kann man eine abstr
 
         public void Delete(A a)
         {
-            map.Remove(a.ID);
+            map.Remove(a.id);
         }
 
-        public void DeleteById(Guid id)
+        public void DeleteById(long id)
         {
             map.Remove(id);
         }
