@@ -146,6 +146,20 @@ namespace RestClient
     }
 }
 ```
+## PUT auf manuelle Route
+Controller:
+```csharp
+        [HttpPut]
+        [Route("api/ZahleEin/{id}")]
+        public void ZahleEin(long id, [FromBody]int betrag)
+        {
+            KontoRepository.instance.findById(id).zahleEin(betrag);
+        }
+```
+Client:
+```csharp
+            var waitForResponse = client.PutAsJsonAsync("/api/ZahleEin/2", 23).Result;
+```
 ## Eigene Datentypen serialisieren
 ```
 Solution Explorer / Solution 'RestServer' / RestServer / Models (right-click) / Add / New Item...
